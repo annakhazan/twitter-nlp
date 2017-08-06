@@ -2,6 +2,8 @@ import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import tweepy
 from tweepy import OAuthHandler
+import operator
+import stopwords
 
 def findRelatedTweets(topic, last_id):
     consumer_key = 'kdaidOlBCg8sCTv9EdhhlpRGE'
@@ -11,7 +13,7 @@ def findRelatedTweets(topic, last_id):
     auth = OAuthHandler(consumer_key, consumer_key_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
-    return api.search(q=topic, count=100, since_id=last_id)
+    return api.search(q=topic, count=10, since_id=last_id)
 
 def analyzeSentiment(sid, text):
     if sid.polarity_scores(text)['compound'] > 0.2:
@@ -22,20 +24,26 @@ def analyzeSentiment(sid, text):
         return 'Negative'
 
 if __name__ == '__main__':
+    print stopwords
     # input = raw_input('What topic are you interested in? >> ')
     input = 'Trump'
     sid = SentimentIntensityAnalyzer()
     counter = 1
     i = 1
     data = []
-    while counter < 11:
+    word_counts = {}
+    while counter < 5:
         tweets = findRelatedTweets(input, i)
         for tweet in tweets:
+            print tweet.text
             sentiment = analyzeSentiment(sid, tweet.text)
             retweet = tweet.text[:2] == 'RT'
-            print tweet.text
-            print retweet
-            print ''
+            for word in tweet.text.split(' '):
+                if word.lower() in word_counts:
+                    word_counts[word.lower()] += 1
+                else:
+                    word_counts[word.lower()] = 1
             data.append({'id':tweet.id, 'text':tweet.text, 'sentiment':sentiment, 'retweet':retweet})
             i = tweet.id
-        counter += 1
+            counter += 1
+    print sorted(word_counts.items(), key=operator.itemgetter(1))[-5:]
