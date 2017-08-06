@@ -2,8 +2,6 @@ import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import tweepy
 from tweepy import OAuthHandler
-import json
-import requests
 
 def findRelatedTweets(topic, last_id):
     consumer_key = 'kdaidOlBCg8sCTv9EdhhlpRGE'
@@ -13,10 +11,9 @@ def findRelatedTweets(topic, last_id):
     auth = OAuthHandler(consumer_key, consumer_key_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
-    return api.search(q=topic, count=5, since_id=last_id)
+    return api.search(q=topic, count=100, since_id=last_id)
 
-def analyzeSentiment(text):
-    sid = SentimentIntensityAnalyzer()
+def analyzeSentiment(sid, text):
     if sid.polarity_scores(text)['compound'] > 0.2:
         return 'Positive'
     elif sid.polarity_scores(text)['compound'] > -0.2 and sid.polarity_scores(text)['compound'] < 0.2:
@@ -25,22 +22,20 @@ def analyzeSentiment(text):
         return 'Negative'
 
 if __name__ == '__main__':
-    input = raw_input('What topic are you interested in? >> ')
-    for i in [1, 100, 200, 300, 400, 500, 600, 700, 800, 900]:
+    # input = raw_input('What topic are you interested in? >> ')
+    input = 'Trump'
+    sid = SentimentIntensityAnalyzer()
+    counter = 1
+    i = 1
+    data = []
+    while counter < 11:
         tweets = findRelatedTweets(input, i)
-        print 'i: ',
-        print i
         for tweet in tweets:
-            print tweet.id
+            sentiment = analyzeSentiment(sid, tweet.text)
+            retweet = tweet.text[:2] == 'RT'
             print tweet.text
+            print retweet
             print ''
-        print ''
-        print ''
-        print ''
-        print ''
-    # for tweet in tweets:
-        # print tweet.text
-        # print analyzeSentiment(tweet.text)
-        # print ''
-        # print ''
-        # print ''
+            data.append({'id':tweet.id, 'text':tweet.text, 'sentiment':sentiment, 'retweet':retweet})
+            i = tweet.id
+        counter += 1
