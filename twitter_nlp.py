@@ -6,6 +6,7 @@ import operator
 from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
+import csv
 
 input = 'Trump'
 stpwrds = stopwords.words('english')
@@ -36,18 +37,20 @@ def labelRetweet(text):
 def wordMatchesCriteria(word):
     return not(word in stpwrds or word == input.lower() or word == 'rt' or word in punctuation)
 
+def testForValidWord(word):
+    try:
+        return type(str(word)) is str
+    except:
+        return False
+
 def updateWordCounts(word_counts, text):
     for word in text:
         word = word.lower()
-        try:
-            word_string = str(word)
-            if wordMatchesCriteria(word):
-                if word in word_counts:
-                    word_counts[word] += 1
-                else:
-                    word_counts[word] = 1
-        except:
-            continue
+        if testForValidWord(word) and wordMatchesCriteria(word):
+            if word in word_counts:
+                word_counts[word] += 1
+            else:
+                word_counts[word] = 1
     return word_counts
 
 def formatWordCounts(word_counts):
@@ -77,35 +80,10 @@ def summarizeData(tweets):
     word_counts = formatWordCounts(word_counts)
     avg_sentiment = sum_sentiments/len(tweets)
     unique_users = set(unique_users)
-    print len(tweets)
     return (len(tweets), unique_users, retweet_count, pos_count, neg_count, avg_sentiment, word_counts)
 
-def processTweets(input):
-    sid = SentimentIntensityAnalyzer()
-    tknzr = TweetTokenizer(strip_handles=True)
-    counter = 1
-    i = 1
-    output_len = 100
-    result_count = output_len
-    data = []
-    while counter < 5 and result_count == output_len:
-        tweets = findRelatedTweets(input, i, output_len)
-        for tweet in tweets:
-            data.append({
-                'id':tweet.id,
-                'text':tknzr.tokenize(tweet.text),
-                'user':tweet.user.id_str,
-                'sentiment':analyzeSentiment(sid, tweet.text),
-                'retweet':labelRetweet(tknzr.tokenize(tweet.text)[0])
-            })
-            i = tweet.id
-        result_count = len(tweets)
-        counter += 1
-    return summarizeData(data)
-
-if __name__ == '__main__':
-    input = raw_input('What topic are you interested in? >> ')
-    total_tweets, unique_users, retweet_count, pos_count, neg_count, avg_sentiment, common_words = processTweets(input)
+def printOutput(data):
+    total_tweets, unique_users, retweet_count, pos_count, neg_count, avg_sentiment, common_words = summarizeData(data)
     print """
         Selected Topic: {0}
         Total Recent Tweets: {1}
@@ -118,3 +96,40 @@ if __name__ == '__main__':
         Top 20 Related Words:
     {8}
     """.format(input, total_tweets, total_tweets - retweet_count, retweet_count, pos_count, neg_count, avg_sentiment, len(unique_users), common_words)
+
+def writeOutput(data):
+    with open('../data/Twitter Activity Related To {0}.csv'.format(input)) as f:
+        writer = csv.DictWriter(f, fieldnames = data[0])
+        writer.writeheader()
+        i = 0
+        for row in data:
+            if i == 0:
+                writer.writerow(row)
+
+def processTweets(input):
+    sid = SentimentIntensityAnalyzer()
+    tknzr = TweetTokenizer(strip_handles=True)
+    counter = 1
+    i = 1
+    output_len = 100
+    result_count = output_len
+    data = []
+    while counter < 11 and result_count == output_len:
+        tweets = findRelatedTweets(input, i, output_len)
+        for tweet in tweets:
+            data.append({
+                'id':tweet.id,
+                'text':tknzr.tokenize(tweet.text),
+                'user':tweet.user.id_str,
+                'sentiment':analyzeSentiment(sid, tweet.text),
+                'retweet':labelRetweet(tknzr.tokenize(tweet.text)[0])
+            })
+            i = tweet.id
+        result_count = len(tweets)
+        counter += 1
+    writeOutput(data)
+    printOutput(data)
+
+if __name__ == '__main__':
+    input = raw_input('What topic are you interested in? >> ')
+    processTweets(input)
