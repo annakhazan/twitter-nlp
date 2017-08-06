@@ -6,6 +6,7 @@ import operator
 # import stopwords
 from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
+from nltk.tokenize import RegexpTokenizer
 
 def findRelatedTweets(topic, last_id, output_count):
     consumer_key = 'kdaidOlBCg8sCTv9EdhhlpRGE'
@@ -32,6 +33,7 @@ if __name__ == '__main__':
     sid = SentimentIntensityAnalyzer()
     tknzr = TweetTokenizer(strip_handles=True)
     stpwrds = stopwords.words('english')
+    punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '...']
     counter = 1
     i = 1
     data = []
@@ -47,9 +49,9 @@ if __name__ == '__main__':
         tweets = findRelatedTweets(input, i, output_count)
         for tweet in tweets:
             sentiment = analyzeSentiment(sid, tweet.text)
-            print tknzr.tokenize(tweet.text)
-            tweet.text[:2] == 'RT'
-            if tweet.text[:2] == 'RT':
+            tweet_text = tknzr.tokenize(tweet.text)
+            tweet_text[0] == 'RT'
+            if tweet_text[0] == 'RT':
                 retweet = True
                 retweet_count += 1
             else:
@@ -61,19 +63,25 @@ if __name__ == '__main__':
             else:
                 neg_count += 1
             sum_sentiment_scores += sentiment[1]
-            for word in tweet.text.split(' '):
-                if word.lower() not in stpwrds and word.lower() != input.lower():
-                    if word.lower() in word_counts:
-                        word_counts[word.lower()] += 1
-                    else:
-                        word_counts[word.lower()] = 1
-            data.append({'id':tweet.id, 'text':tweet.text, 'sentiment':sentiment, 'retweet':retweet})
+            for word in tweet_text:
+                try:
+                    str(word)
+                    if word.lower() not in stpwrds and word.lower() != input.lower() and word.lower() != 'rt' and word.lower() not in punctuation:
+                        if word.lower() in word_counts:
+                            word_counts[word.lower()] += 1
+                        else:
+                            word_counts[word.lower()] = 1
+                except:
+                    continue
+            data.append({'id':tweet.id, 'text':tweet_text, 'sentiment':sentiment, 'retweet':retweet})
             i = tweet.id
             counter += 1
             result_count = len(tweets)
     total_tweets = len(data)
     common_words = sorted(word_counts.items(), key=operator.itemgetter(1))[-20:]
     average_sentiment = sum_sentiment_scores/total_tweets
-    print 'Total recent tweets: {0}'.format(total_tweets)
+    # print 'Total recent tweets: {0}'.format(total_tweets)
     print 'Top 20 related words: {0}'.format(common_words)
-    print 'Average Sentiment (ranging from -1 to 1): {0}'.format(average_sentiment)
+    # print 'Total Original Tweets: {0}'.format(total_tweets - retweet_count)
+    # print 'Total Retweets: {0}'.format(retweet_count)
+    # print 'Average Sentiment (ranging from -1 to 1): {0}'.format(average_sentiment)
