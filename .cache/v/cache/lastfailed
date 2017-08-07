@@ -1,0 +1,4 @@
+{
+  "tests/test_twitter_nlp.py::testForValidWord": true, 
+  "tests/test_twitter_nlp.py::test_analyzeSentiment": true
+}

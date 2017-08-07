@@ -7,6 +7,7 @@ from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
 import csv
+import os
 
 input = 'Trump'
 stpwrds = stopwords.words('english')
