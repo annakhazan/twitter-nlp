@@ -12,6 +12,8 @@ input = 'Trump'
 stpwrds = stopwords.words('english')
 punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '...']
 
+# nltk.download()
+
 def findRelatedTweets(topic, last_id, output_len):
     consumer_key = 'kdaidOlBCg8sCTv9EdhhlpRGE'
     consumer_key_secret = 'dN5lryDtZLVyTEelGek2LXaXxsU9eXMc4oP9LbjtqKdpR9RhXy'
