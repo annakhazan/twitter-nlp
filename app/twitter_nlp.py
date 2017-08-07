@@ -9,17 +9,16 @@ from nltk.tokenize import RegexpTokenizer
 import csv
 import os
 
-input = 'Trump'
 stpwrds = stopwords.words('english')
 punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '...']
 
 # nltk.download()
 
 def findRelatedTweets(topic, last_id, output_len):
-    consumer_key = 'kdaidOlBCg8sCTv9EdhhlpRGE'
-    consumer_key_secret = 'dN5lryDtZLVyTEelGek2LXaXxsU9eXMc4oP9LbjtqKdpR9RhXy'
-    access_token = '1363491181-Vi4vQrFSm3gwtrMbeqTn87cwCg7r8bvRU7MqtFR'
-    access_token_secret = '4gEoBWf7z0sPGKwADrH3VrgJT0nuJ9DQra8E6k7O6hYNU'
+    consumer_key = os.environ['TWITTER_CONSUMER_KEY']
+    consumer_key_secret = os.environ['TWITTER_CONSUMER_KEY_SECRET']
+    access_token = os.environ['TWITTER_ACCESS_TOKEN']
+    access_token_secret = os.environ['TWITTER_ACCESS_TOKEN_SECRET']
     auth = OAuthHandler(consumer_key, consumer_key_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
