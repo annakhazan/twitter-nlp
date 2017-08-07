@@ -58,7 +58,7 @@ def formatWordCounts(word_counts):
     common_words = sorted(word_counts.items(), key=operator.itemgetter(1))[-20:]
     for w in sorted(common_words, key=lambda v:v[1], reverse=True):
         output += '\t\t' + str(w[0]) + ' (' + str(w[1]) + ' instances),\n'
-    return output
+    return output[:-2]
 
 def summarizeData(tweets):
     unique_users = []
@@ -76,7 +76,7 @@ def summarizeData(tweets):
         elif t['sentiment'][0] == 'Negative':
             neg_count += 1
         sum_sentiments += t['sentiment'][1]
-        word_counts = updateWordCounts(word_counts, t['text'])
+        word_counts = updateWordCounts(word_counts, t['tokenized_text'])
     word_counts = formatWordCounts(word_counts)
     avg_sentiment = sum_sentiments/len(tweets)
     unique_users = set(unique_users)
@@ -98,13 +98,25 @@ def printOutput(data):
     """.format(input, total_tweets, total_tweets - retweet_count, retweet_count, pos_count, neg_count, avg_sentiment, len(unique_users), common_words)
 
 def writeOutput(data):
-    with open('../data/Twitter Activity Related To {0}.csv'.format(input)) as f:
-        writer = csv.DictWriter(f, fieldnames = data[0])
-        writer.writeheader()
+    with open('../data/Twitter Activity Related To {0}.csv'.format(input), 'wb+') as f:
+        writer = csv.writer(f)
         i = 0
         for row in data:
             if i == 0:
-                writer.writerow(row)
+                writer.writerow(['ID', 'Original Text', 'Retweet', 'Sentiment Score', 'Sentiment Analysis', 'User'])
+            else:
+                try:
+                    writer.writerow([
+                        row['id'],
+                        row['original_text'],
+                        row['retweet'],
+                        row['sentiment'][0],
+                        row['sentiment'][1],
+                        row['user']
+                    ])
+                except:
+                    continue
+            i+=1
 
 def processTweets(input):
     sid = SentimentIntensityAnalyzer()
@@ -119,7 +131,8 @@ def processTweets(input):
         for tweet in tweets:
             data.append({
                 'id':tweet.id,
-                'text':tknzr.tokenize(tweet.text),
+                'original_text':tweet.text,
+                'tokenized_text':tknzr.tokenize(tweet.text),
                 'user':tweet.user.id_str,
                 'sentiment':analyzeSentiment(sid, tweet.text),
                 'retweet':labelRetweet(tknzr.tokenize(tweet.text)[0])
