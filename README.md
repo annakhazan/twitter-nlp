@@ -15,9 +15,9 @@
 
 ## Registing a Twitter application and setting up environment variables
 
-* Register a Twitter application at apps.twitter.come by going to 'Create an application' and then following the prompts until you get to the 'Keys and Access Tokens' page.
+* Register a Twitter application at apps.twitter.com by going to 'Create an application' and then following the prompts until you get to the 'Keys and Access Tokens' page.
 * Next, run `vi ~/.bash_profile` in the command line
-* Save `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_KEY_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET` as environment variables.
+* Save `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_KEY_SECRET`, `TWITTER_ACCESS_TOKEN` and `TWITTER_ACCESS_TOKEN_SECRET` as environment variables.
 
 ## Getting Started
 
