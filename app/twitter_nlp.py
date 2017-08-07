@@ -98,7 +98,7 @@ def printOutput(data):
     """.format(input, total_tweets, total_tweets - retweet_count, retweet_count, pos_count, neg_count, avg_sentiment, len(unique_users), common_words)
 
 def writeOutput(data):
-    with open('../data/Twitter Activity Related To {0}.csv'.format(input), 'wb+') as f:
+    with open('./data/Twitter Activity Related To {0}.csv'.format(input), 'wb+') as f:
         writer = csv.writer(f)
         i = 0
         for row in data:
